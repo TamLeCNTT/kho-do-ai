@@ -3,7 +3,7 @@
   "short_name":"Kho Đồ",
   "description":"Quản lý đồ vật và tìm bằng AI ngay trên thiết bị",
   "id":"./",
-  "start_url":"./",
+  "start_url":"./?screen=add",
   "scope":"./",
   "display":"standalone",
   "orientation":"portrait-primary",

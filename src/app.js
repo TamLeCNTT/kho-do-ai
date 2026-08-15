@@ -7,7 +7,10 @@ import { searchWorker } from "./similaritySearch.js";
 import { exportBackup, importBackup } from "./backup.js";
 import { sanitizeContentHtml, contentToText } from "./content.js";
 const app = document.querySelector("#app");
-let route = "add",
+let route =
+    new URLSearchParams(location.search).get("screen") === "home"
+      ? "home"
+      : "add",
   selected = null,
   editId = null,
   filter = { q: "", sort: "new", cat: "" },
@@ -384,12 +387,11 @@ async function dataPage(p) {
     .count();
   p.innerHTML = `<h2>⚙️ Dữ liệu & cài đặt</h2><div class="panel"><p><b>Số đồ vật:</b> ${s.count}</p><p><b>Dung lượng dữ liệu:</b> ${formatBytes(s.bytes)}</p><p><b>Storage trình duyệt:</b> ${formatBytes(est.usage || 0)} / ${formatBytes(est.quota || 0)}</p><p>${persisted ? "✅ Persistent storage được cấp" : "⚠️ Persistent storage chưa được cấp"}</p><button id="persist" class="secondary">Yêu cầu lưu trữ bền vững</button></div><div class="panel"><h3>Sao lưu & khôi phục</h3><button id="backup">📤 Sao lưu toàn bộ</button><button id="restore" class="secondary">📥 Khôi phục ZIP</button><input hidden id="zip" type="file" accept=".zip,application/zip"><p id="prog" class="muted"></p></div><div class="panel"><h3>AI model</h3><p>${esc(MODEL)}<br>Phiên bản embedding: ${MODEL_VERSION}<br>${mismatched} mục cần tạo lại embedding.</p><button id="reembed" ${mismatched ? "" : "disabled"}>Tạo lại embedding</button></div><div class="panel"><h3>Quyền riêng tư</h3><p>Ảnh và dữ liệu được lưu trong IndexedDB trên thiết bị. Ứng dụng không upload ảnh cá nhân lên máy chủ. AI image search chạy local trong trình duyệt.</p></div>`;
   const prog = p.querySelector("#prog");
-  p.querySelector("#persist").onclick = async () =>
-    toast(
-      (await navigator.storage?.persist?.())
-        ? "Đã cấp lưu trữ bền vững."
-        : "Trình duyệt chưa cấp quyền.",
-    );
+  p.querySelector("#persist").onclick = async () => {
+    const granted = await navigator.storage?.persist?.();
+    toast(granted ? "Đã cấp lưu trữ bền vững." : "Trình duyệt chưa cấp quyền.");
+    if (granted) setTimeout(() => render(), 500);
+  };
   p.querySelector("#backup").onclick = async () => {
     try {
       prog.textContent = "Đang đóng gói…";
