@@ -1,0 +1,1 @@
+export function searchWorker(query,entries,limit=5){return new Promise((resolve,reject)=>{const worker=new Worker(new URL('../workers/search-worker.js',import.meta.url),{type:'module'});worker.onmessage=e=>{resolve(e.data);worker.terminate()};worker.onerror=e=>{reject(e);worker.terminate()};worker.postMessage({query,entries,limit});});}

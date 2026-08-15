@@ -1,0 +1,1 @@
+self.onmessage=({data:{query,entries,limit}})=>{const out=[];for(const e of entries){if(!e.embedding)continue;const v=e.embedding instanceof Float32Array?e.embedding:new Float32Array(e.embedding);let s=0;for(let i=0;i<Math.min(query.length,v.length);i++)s+=query[i]*v[i];out.push({id:e.id,score:s});}out.sort((a,b)=>b.score-a.score);self.postMessage(out.slice(0,limit));};
