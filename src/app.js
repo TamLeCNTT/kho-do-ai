@@ -68,7 +68,7 @@ async function render() {
   try {
     if (route === "home") await home(p);
     if (route === "list") await list(p);
-    if (route === "add") form(p);
+    if (route === "add") await form(p);
     if (route === "detail") await detail(p);
     if (route === "find") find(p);
     if (route === "data") await dataPage(p);
@@ -127,8 +127,18 @@ function bindViews(el) {
 }
 async function form(p, item = {}) {
   const editing = !!item.id;
-  const savedCategories = await db.categories.orderBy("name").toArray();
-  const legacyCategories = await db.items.orderBy("category").uniqueKeys();
+  let savedCategories = [];
+  try {
+    savedCategories = await db.categories.orderBy("name").toArray();
+  } catch (error) {
+    console.warn(
+      "Chưa đọc được danh mục riêng, dùng danh mục từ dữ liệu cũ.",
+      error,
+    );
+  }
+  const legacyCategories = (await db.items.toArray())
+    .map((x) => x.category)
+    .filter(Boolean);
   const categories = [
     ...new Set([
       ...savedCategories.map((x) => x.name),
