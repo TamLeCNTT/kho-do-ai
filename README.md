@@ -77,7 +77,7 @@ Mở URL GitHub Pages bằng Safari → nút Share → **Add to Home Screen**. M
 
 ## IndexedDB schema
 
-Database `KhoDoAIDatabase`, store `items`: `id`, `name`, `description`, `location`, `category`, `tags`, `createdAt`, `updatedAt`, `favorite`, `imageBlob`, `thumbnailBlob`, kích thước ảnh, `embedding` (`Float32Array`), `embeddingModel`, `embeddingVersion`, `imageFingerprint`. Thiết kế record cho phép migration sang bảng ảnh phụ khi bổ sung nhiều góc ảnh.
+Database `KhoDoAIDatabase` có store `items`: `id`, `name`, `description`, `location`, `category`, `tags`, `createdAt`, `updatedAt`, `favorite`, `imageBlob`, `thumbnailBlob`, kích thước ảnh, `embedding` (`Float32Array`), `embeddingModel`, `embeddingVersion`, `imageFingerprint`. Trường `name` được dùng nội bộ để lưu **nội dung liên quan đến ảnh** và làm tiêu đề hiển thị, không bắt buộc phải là tên một đồ vật. Store `categories` lưu các danh mục do người dùng tự tạo để có thể chọn lại trong form. Thiết kế record cho phép migration sang bảng ảnh phụ khi bổ sung nhiều góc ảnh.
 
 Kiểm tra trên máy tính: DevTools → Application → IndexedDB → `KhoDoAIDatabase` → `items`. Trên iPhone cần kết nối Safari Web Inspector từ macOS; nếu không có Mac, dùng chức năng sao lưu ZIP để kiểm tra `backup.json` và ảnh.
 

@@ -1,0 +1,44 @@
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: #eef2ed;
+  border: 1px solid #c8d3cb;
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+}
+.editor-toolbar button {
+  min-height: 38px;
+  min-width: 40px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #fff;
+  color: #173f35;
+  border: 1px solid #c8d3cb;
+}
+.content-editor {
+  min-height: 120px;
+  padding: 13px;
+  background: #fff;
+  border: 1px solid #c8d3cb;
+  border-radius: 0 0 12px 12px;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+.content-editor:focus {
+  border-color: #26745e;
+  box-shadow: 0 0 0 3px #26745e22;
+}
+.content-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #87948e;
+  pointer-events: none;
+}
+.content-editor p {
+  margin: 0 0 8px;
+}
+.location-button {
+  width: 100%;
+  margin-top: 8px;
+}

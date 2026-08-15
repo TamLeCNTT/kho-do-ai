@@ -13,5 +13,8 @@
     "dexie": "^4.0.11",
     "jszip": "^3.10.1"
   },
-  "devDependencies": { "vite": "^7.1.2" }
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "vite": "^7.1.2"
+  }
 }
