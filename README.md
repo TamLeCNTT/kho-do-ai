@@ -7,8 +7,8 @@ PWA mobile-first để lưu ảnh đồ vật trong IndexedDB và tìm lại b�
 - Vite + JavaScript modules, CSS, PWA Service Worker.
 - Dexie/IndexedDB `KhoDoAIDatabase`, JSZip backup/restore.
 - Transformers.js 3 + ONNX Runtime Web, backend **WASM** để tương thích Safari iOS.
-- Model: `Xenova/mobileclip_s0`, vision model lượng tử `q8`, khoảng **11,8 MB**.
-- Embedding: vector image embedding **512 chiều** từ MobileCLIP, sau đó chuẩn hóa L2. Đây là model được huấn luyện để tạo không gian đặc trưng ảnh, không dùng logits phân loại, hash, màu hay filename.
+- Model: `plhery/mobileclip2-onnx`, biến thể **MobileCLIP2-S0** vision FP32, khoảng **43 MB**.
+- Embedding: vector image embedding **512 chiều** từ MobileCLIP2, sau đó chuẩn hóa L2. Model mới phân tách ảnh khác loại tốt hơn MobileCLIP-S0 q8 cũ nhưng vẫn đủ nhẹ để ưu tiên Safari iPhone. Đây là model được huấn luyện để tạo không gian đặc trưng ảnh, không dùng logits phân loại, hash, màu hay filename.
 - Tìm kiếm: query dùng đúng model/version, dot product giữa các vector đã chuẩn hóa (tương đương cosine similarity), sort giảm dần, lấy Top 5 trong Web Worker. Điểm phần trăm chỉ là độ tương đồng, **không phải xác suất** cùng một đồ vật.
 
 Model được tải từ Hugging Face ở lần dùng đầu, sau đó Transformers.js lưu model trong browser cache. Inference nhận ảnh qua Blob/Object URL local; mã ứng dụng không upload ảnh. Để kiểm chứng, mở Safari Web Inspector/Network: sau khi model đã cache và tắt mạng, thêm/tìm ảnh vẫn hoạt động; không có request nào chứa ảnh người dùng.
@@ -102,7 +102,7 @@ Service Worker cache app shell và các static asset cùng origin; module/runtim
 
 ## Giới hạn kỹ thuật
 
-- MobileCLIP nhận biết tương đồng ngữ nghĩa và hình dạng tốt hơn logits phân loại, nhưng hai sản phẩm giống hệt cùng model/màu vẫn có thể khó phân biệt; nền và góc chụp khác mạnh làm giảm điểm.
+- MobileCLIP2 nhận biết tương đồng ngữ nghĩa và hình dạng tốt hơn logits phân loại, nhưng hai sản phẩm giống hệt cùng model/màu vẫn có thể khó phân biệt; nền và góc chụp khác mạnh làm giảm điểm.
 - Ngưỡng mặc định 0.55 chỉ là khởi điểm và có thể chỉnh ở màn hình tìm. Logits cosine không được hiệu chuẩn thành xác suất.
 - Lần đầu tải/inference có thể mất thời gian trên iPhone cũ. Nếu model/version đổi, trang Dữ liệu yêu cầu tạo lại embedding; app không so trực tiếp embedding khác version.
 - SVG icon hoạt động trên trình duyệt hiện đại; nếu một bản iOS cũ không dùng nó làm icon Home Screen, hãy xuất `icons/icon.svg` thành PNG 192×192 và 512×512 rồi thêm vào manifest.

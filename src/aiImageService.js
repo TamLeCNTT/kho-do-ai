@@ -1,11 +1,87 @@
-import { pipeline, env } from '@huggingface/transformers';
-export const MODEL='Xenova/mobileclip_s0';
-export const MODEL_VERSION='2.0-q8-image-embeds-512';
+import {
+  CLIPVisionModelWithProjection,
+  AutoProcessor,
+  RawImage,
+  env,
+} from "@huggingface/transformers";
+
+export const MODEL = "plhery/mobileclip2-onnx";
+export const MODEL_VERSION = "3.0-mobileclip2-s0-fp32-512";
+
 class AIImageService {
-  state='notLoaded'; error=null; extractor=null; listeners=new Set();
-  on(fn){this.listeners.add(fn);fn(this.state);return()=>this.listeners.delete(fn)} emit(){this.listeners.forEach(x=>x(this.state,this.error))}
-  async load(){if(this.state==='ready')return;if(this.state==='loading')return this.promise;this.state='loading';this.emit();this.promise=(async()=>{try{env.allowLocalModels=false;env.useBrowserCache=true;this.extractor=await pipeline('image-feature-extraction',MODEL,{device:'wasm',dtype:'q8'});this.state='ready';this.emit();}catch(e){this.error=e;this.state='error';this.emit();throw e;}})();return this.promise;}
-  async embed(blob){await this.load();const url=URL.createObjectURL(blob);try{const features=await this.extractor(url);const vector=new Float32Array(features.data);if(vector.length!==512)throw new Error(`Embedding AI sai kích thước: ${vector.length} thay vì 512.`);return normalize(vector);}finally{URL.revokeObjectURL(url)}}
+  state = "notLoaded";
+  error = null;
+  model = null;
+  processor = null;
+  listeners = new Set();
+
+  on(fn) {
+    this.listeners.add(fn);
+    fn(this.state);
+    return () => this.listeners.delete(fn);
+  }
+
+  emit() {
+    this.listeners.forEach((fn) => fn(this.state, this.error));
+  }
+
+  async load() {
+    if (this.state === "ready") return;
+    if (this.state === "loading") return this.promise;
+    this.state = "loading";
+    this.emit();
+    this.promise = (async () => {
+      try {
+        env.allowLocalModels = false;
+        env.useBrowserCache = true;
+        [this.model, this.processor] = await Promise.all([
+          CLIPVisionModelWithProjection.from_pretrained(MODEL, {
+            device: "wasm",
+            dtype: "fp32",
+            model_file_name: "s0/vision_model",
+          }),
+          AutoProcessor.from_pretrained(MODEL, {
+            config_file_name: "onnx/s0/preprocessor_config.json",
+          }),
+        ]);
+        this.state = "ready";
+        this.emit();
+      } catch (error) {
+        this.error = error;
+        this.state = "error";
+        this.emit();
+        throw error;
+      }
+    })();
+    return this.promise;
+  }
+
+  async embed(blob) {
+    await this.load();
+    const url = URL.createObjectURL(blob);
+    try {
+      const image = await RawImage.fromURL(url);
+      const inputs = await this.processor([image]);
+      const outputs = await this.model({ pixel_values: inputs.pixel_values });
+      const vector = new Float32Array(outputs.image_embeds.data);
+      if (vector.length !== 512) {
+        throw new Error(
+          `Embedding AI sai kích thước: ${vector.length} thay vì 512.`,
+        );
+      }
+      return normalize(vector);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
 }
-function normalize(v){let n=0;for(const x of v)n+=x*x;n=Math.sqrt(n)||1;for(let i=0;i<v.length;i++)v[i]/=n;return v;}
-export const ai=new AIImageService();
+
+function normalize(vector) {
+  let magnitude = 0;
+  for (const value of vector) magnitude += value * value;
+  magnitude = Math.sqrt(magnitude) || 1;
+  for (let i = 0; i < vector.length; i++) vector[i] /= magnitude;
+  return vector;
+}
+
+export const ai = new AIImageService();

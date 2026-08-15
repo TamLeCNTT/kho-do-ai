@@ -7,7 +7,7 @@ import { searchWorker } from "./similaritySearch.js";
 import { exportBackup, importBackup } from "./backup.js";
 import { sanitizeContentHtml, contentToText } from "./content.js";
 const app = document.querySelector("#app");
-let route = "home",
+let route = "add",
   selected = null,
   editId = null,
   filter = { q: "", sort: "new", cat: "" },
